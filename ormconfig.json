@@ -1,0 +1,14 @@
+{
+    "type": "mssql",
+    "host": "localhost",
+    "port": 1433,
+    "username": "your_username",
+    "password": "your_password",
+    "database": "your_database",
+    "entities": ["dist/**/*.entity.js"],
+    "synchronize": false,
+    "extra": {
+      "trustServerCertificate": true
+    }
+  }
+  
