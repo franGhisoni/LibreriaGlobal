@@ -70,7 +70,6 @@ export class BookService {
     const book = this.bookRepository.create({ ...bookData, editorial });
     await this.bookRepository.save(book);
 
-    // Save BookAuthor relations
     for (const author of authors) {
       const bookAuthor = new BookAuthor();
       bookAuthor.book = book;
@@ -78,7 +77,6 @@ export class BookService {
       await this.bookAuthorRepository.save(bookAuthor);
     }
 
-    // Recargar el libro con sus relaciones
     const savedBook = await this.bookRepository.findOne({ where: { id: book.id }, relations: ['editorial', 'bookAuthors', 'bookAuthors.author'] });
 
     return this.toResponseDTO(savedBook);
@@ -125,26 +123,26 @@ export class BookService {
 
       }
 
-      // Recargar las relaciones actualizadas
-      // book = await this.bookRepository.findOne({ where: { id }, relations: ['editorial', 'bookAuthors', 'bookAuthors.author'] });
-      // console.log("book anterior : ", book)
+    
+      book = await this.bookRepository.findOne({ where: { id }, relations: ['editorial', 'bookAuthors', 'bookAuthors.author'] });
+      console.log("book anterior : ", book)
 
     }
 
-    // Object.assign(book, bookData);
+    Object.assign(book, bookData);
     console.log("book final 2: ", book)
     try{
       await this.bookRepository.save(book);
 
     }catch(e){
       console.log(e)
-      await this.bookRepository.update(book.id, book);
+      await this.bookRepository.update(id, book);
 
     }
     
 
 
-    // Recargar el libro con sus relaciones actualizadas
+   
     const updatedBook = await this.bookRepository.findOne({ where: { id: book.id }, relations: ['editorial', 'bookAuthors', 'bookAuthors.author'] });
     console.log("book final 3: ", updatedBook)
 
