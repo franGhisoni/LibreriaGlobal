@@ -22,9 +22,10 @@ export class BookController {
 
   @Get()
   @HttpCode(HttpStatus.OK)
-  async getBooks() {
-    return this.bookService.getAll();
+  async getBooks(@Query('category') category: string) {
+    return this.bookService.getAll(category);
   }
+
 
   @Get(':id')
   @HttpCode(HttpStatus.OK)

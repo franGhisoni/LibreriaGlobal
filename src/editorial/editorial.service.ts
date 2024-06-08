@@ -1,26 +1,49 @@
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { CreateEditorialDto } from './dto/create-editorial.dto';
 import { UpdateEditorialDto } from './dto/update-editorial.dto';
+import { Editorial } from './entities/editorial.entity';
+import { Address } from './entities/address.entity';
 
 @Injectable()
 export class EditorialService {
-  create(createEditorialDto: CreateEditorialDto) {
-    return 'This action adds a new editorial';
+  constructor(
+    @InjectRepository(Editorial)
+    private editorialRepository: Repository<Editorial>,
+    @InjectRepository(Address)
+    private addressRepository: Repository<Address>,
+  ) {}
+
+  async create(createEditorialDto: CreateEditorialDto) {
+    const newAddress = this.addressRepository.create(createEditorialDto.address);
+    await this.addressRepository.save(newAddress);
+
+    const newEditorial = this.editorialRepository.create({
+      ...createEditorialDto,
+      address: newAddress,
+    });
+    
+    
+    await this.editorialRepository.save(newEditorial);
+
+    return newEditorial;
   }
 
-  findAll() {
-    return `This action returns all editorial`;
+  async findAll() {
+    return await this.editorialRepository.find({ relations: ['address'] });
+  }
+  
+  async findOne(id: number) {
+    return await this.editorialRepository.findOne({where: { id },  relations: ['address'] });
+  }
+  async update(id: number, updateEditorialDto: UpdateEditorialDto) {
+    await this.editorialRepository.update(id, updateEditorialDto);
+    return this.findOne(id);
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} editorial`;
-  }
-
-  update(id: number, updateEditorialDto: UpdateEditorialDto) {
-    return `This action updates a #${id} editorial`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} editorial`;
+  async remove(id: number) {
+    const editorialToRemove = await this.findOne(id);
+    return await this.editorialRepository.remove(editorialToRemove);
   }
 }
